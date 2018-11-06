@@ -7,7 +7,6 @@ Available on [Docker Hub](https://hub.docker.com/r/theunit/nginx-php7.2).
 ## Overview
 - PHP 7.2.7
 - Nginx
-- Composer
 
 ## Running the Container
 

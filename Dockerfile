@@ -16,24 +16,14 @@ CMD ["/sbin/my_init"]
 RUN apt-get update
 
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y \
-    curl \
     python-software-properties \
-    software-properties-common \
-    unzip \
-    vim \
-    wget \
-    zip
+    software-properties-common
 
-# Install PHP 7.2 and some useful extensions.
+# Install PHP 7.2.
 RUN add-apt-repository -y ppa:ondrej/php && \
     add-apt-repository -y ppa:nginx/stable && \
     apt-get update
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y --force-yes \
-    php7.2-curl \
-    php7.2-fpm \
-    php7.2-mbstring \
-    php7.2-mysqlnd \
-    php7.2-xml
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y --force-yes php7.2-fpm
 
 # Setup PHP.
 RUN sed -i "s/;date.timezone =.*/date.timezone = UTC/" /etc/php/7.2/fpm/php.ini && \
@@ -50,14 +40,6 @@ COPY conf/nginx.conf /etc/nginx/sites-available/default
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN rm /var/www/html/index.nginx-debian.html && \
     echo "<?php phpinfo();" > /var/www/html/index.php
-
-# Install composer.
-RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer && \
-    curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig && \
-    # Make sure we're installing what we think we're installing!
-    php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" && \
-    php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --snapshot && \
-    rm -f /tmp/composer-setup.*
 
 # Start PHP & Nginx on boot.
 RUN mkdir /etc/service/nginx && \
